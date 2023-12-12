@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <!-- Custom CSS -->
+    <style>
+        /* Body */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 4rem auto;
+            padding: 2rem;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        /* Title */
+        .title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Timer */
+        .timer {
+            text-align: center;
+            font-size: 4rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .buttons button {
+            width: 100px;
+            height: 50px;
+            margin: 0.5rem;
+            border: none;
+            border-radius: 10px;
+            background-color: #333;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* Laps */
+        .laps {
+            margin-bottom: 2rem;
+        }
+
+        .laps h3 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .laps ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .laps li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+
+        .laps li span {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container -->
+    <div class="container">
+        <!-- Title -->
+        <h1 class="title">Stopwatch</h1>
+        <!-- Timer -->
+        <div class="timer" id="timer">00:00:00</div>
+        <!-- Buttons -->
+        <div class="buttons">
+            <button id="start">Start</button>
+            <button id="pause">Pause</button>
+            <button id="reset">Reset</button>
+            <button id="lap">Lap</button>
+        </div>
+        <!-- Laps -->
+        <div class="laps" id="laps">
+            <h3>Laps</h3>
+            <ul id="lap-list">
+                <!-- Lap times will be displayed here -->
+            </ul>
+        </div>
+    </div>
+    <!-- Custom JS -->
+    <script>
+        // Get the elements
+        const timerDiv = document.getElementById("timer");
+        const startButton = document.getElementById("start");
+        const pauseButton = document.getElementById("pause");
+        const resetButton = document.getElementById("reset");
+        const lapButton = document.getElementById("lap");
+        const lapList = document.getElementById("lap-list");
+
+        // Define the variables
+        let hours = 0;
+        let minutes = 0;
+        let seconds = 0;
+        let milliseconds = 0;
+        let interval = null;
+        let running = false;
+        let lapCount = 0;
+
+        // Define a function to format the time
+        function formatTime() {
+            // Add leading zeros if needed
+            let hoursString = hours < 10 ? "0" + hours : hours;
+            let minutesString = minutes < 10 ? "0" + minutes : minutes;
+            let secondsString = seconds < 10 ? "0" + seconds : seconds;
+            let millisecondsString = milliseconds < 10 ? "0" + milliseconds : milliseconds;
+
+            // Return the formatted time
+            return hoursString + ":" + minutesString + ":" + secondsString + "." + millisecondsString;
+        }
+
+        // Define a function to update the timer
+        function updateTimer() {
+            // Increment the milliseconds
+            milliseconds++;
+
+            // If the milliseconds reach 100, increment the seconds and reset the milliseconds
+            if (milliseconds === 100) {
+                seconds++;
+                milliseconds = 0;
+            }
+
+            // If the seconds reach 60, increment the minutes and reset the seconds
+            if (seconds === 60) {
+                minutes++;
+                seconds = 0;
+            }
+
+            // If the minutes reach 60, increment the hours and reset the minutes
+            if (minutes === 60) {
+                hours++;
+                minutes = 0;
+            }
+
+            // Display the formatted time on the timer div
+            timerDiv.textContent = formatTime();
+        }
+
+        // Define a function to start the timer
+        function startTimer() {
+            // If the timer is not running, start the interval and set the running flag to true
+            if (!running) {
+                interval = setInterval(updateTimer, 10);
+                running = true;
+            }
+        }
+
+        // Define a function to pause the timer
+        function pauseTimer() {
+            // If the timer is running, clear the interval and set the running flag to false
+            if (running) {
+                clearInterval(interval);
+                running = false;
+            }
+        }
+
+        // Define a function to reset the timer
+        function resetTimer() {
+            // Pause the timer
+            pauseTimer();
+
+            // Reset the variables
+            hours = 0;
+            minutes = 0;
+            seconds = 0;
+            milliseconds = 0;
+            lapCount = 0;
+
+            // Display the formatted time on the timer div
+            timerDiv.textContent = formatTime();
+
+            // Clear the lap list
+            lapList.innerHTML = "";
+        }
+
+        // Define a function to record a lap
+        function recordLap() {
+            // If the timer is running, increment the lap count and create a new list item
+            if (running) {
+                lapCount++;
+                let li = document.createElement("li");
+
+                // Create two spans for the lap number and the lap time
+                let lapNumberSpan = document.createElement("span");
+                lapNumberSpan.textContent = "Lap " + lapCount;
+
+                let lapTimeSpan = document.createElement("span");
+                lapTimeSpan.textContent = formatTime();
+
+                // Append the spans to the list item
+                li.appendChild(lapNumberSpan);
+                li.appendChild(lapTimeSpan);
+
+                // Prepend the list item to the lap list
+                lapList.prepend(li);
+            }
+        }
+
+        // Add click event listeners to the buttons
+        startButton.addEventListener("click", startTimer);
+        pauseButton.addEventListener("click", pauseTimer);
+        resetButton.addEventListener("click", resetTimer);
+        lapButton.addEventListener("click", recordLap);
+    </script>
+</body>
+</html>
